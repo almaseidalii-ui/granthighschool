@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FinCity — математическая модель виртуальной экономики</title>
+<style>
+:root{--bg:#08101f;--panel:#111c31;--panel2:#172640;--text:#f5f8ff;--muted:#9eacc4;--a:#7c8cff;--b:#41d9b5;--gold:#ffd166;--red:#ff6b7a}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial;background:radial-gradient(circle at 15% 0,#172650 0,transparent 32%),radial-gradient(circle at 100% 20%,#1b3650 0,transparent 28%),var(--bg);color:var(--text);min-height:100vh}
+.wrap{max-width:980px;margin:auto;padding:20px}.nav{display:flex;justify-content:space-between;align-items:center;padding:10px 2px}.logo{font-weight:950;font-size:20px}.badge{font-size:12px;padding:8px 11px;border:1px solid #31415f;border-radius:999px;color:#bdc8da}
+.card{background:linear-gradient(145deg,rgba(23,38,64,.94),rgba(14,25,44,.94));border:1px solid #263957;border-radius:25px;padding:25px;margin:16px 0;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.hero{padding:38px 30px}.kicker{font-size:12px;letter-spacing:.13em;color:#7f91ff;font-weight:850}.hero h1{font-size:47px;line-height:1.02;letter-spacing:-2px;margin:10px 0 14px;max-width:750px}.lead{color:var(--muted);line-height:1.6;font-size:16px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.mini{background:#0d1729;border:1px solid #23334f;border-radius:17px;padding:15px}.mini b{font-size:22px;display:block;margin-bottom:3px}.mini span{color:var(--muted);font-size:12px}
+button{border:0;border-radius:15px;padding:15px 18px;font-weight:850;font-size:15px;cursor:pointer}.primary{width:100%;color:white;background:linear-gradient(135deg,#6478ff,#7e61ff);box-shadow:0 12px 25px #596cff35}.choice{background:#13223a;color:#eef4ff;border:1px solid #2a3c5b;text-align:left;min-height:94px}.choice:hover{border-color:#7486ff;transform:translateY(-1px)}.choice b{display:block;margin-bottom:7px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:15px}
+.hidden{display:none!important}.money{font-size:43px;font-weight:950;letter-spacing:-1.5px}.topstats{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px}.label{font-size:11px;letter-spacing:.08em;color:#8290aa;font-weight:800}.progress{height:8px;background:#26334b;border-radius:99px;overflow:hidden;margin-top:14px}.bar{height:100%;background:linear-gradient(90deg,var(--b),var(--a));transition:.35s}
+.market{display:grid;grid-template-columns:1.25fr .75fr;gap:13px}.event{padding:13px 14px;background:#25213b;border:1px solid #443e65;border-radius:14px;color:#ddd7ff}.math{padding:14px;background:#0b1526;border:1px dashed #3c5277;border-radius:15px;color:#b9c7df;margin:13px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.math strong{color:#fff}.chip{display:inline-block;padding:6px 9px;border-radius:8px;background:#21314d;color:#aebbd0;font-size:12px;margin:2px}
+canvas{width:100%;background:#0b1526;border-radius:18px;margin-top:12px}.resultTitle{font-size:35px;margin:4px 0}.score{font-size:62px;font-weight:950;color:var(--b)}.research{border-left:4px solid var(--b);padding-left:15px}.footer{text-align:center;color:#64728b;font-size:12px;padding:16px}
+@media(max-width:700px){.hero h1{font-size:35px}.grid,.topstats,.market,.choices{grid-template-columns:1fr}.hero{padding:28px 22px}.wrap{padding:12px}.card{padding:20px}}
+
+.adbanner{position:relative;overflow:hidden;border-radius:20px;padding:18px;margin:14px 0;border:1px solid rgba(255,255,255,.16);box-shadow:0 14px 30px rgba(0,0,0,.25);animation:pop .35s ease}
+.adbanner:after{content:"РЕКЛАМА";position:absolute;right:10px;top:9px;font-size:9px;letter-spacing:.12em;background:#ffffff24;padding:4px 6px;border-radius:6px}
+.ad-yandex{background:linear-gradient(120deg,#ff3d00,#ff006e 48%,#7b2cff);color:#fff}
+.ad-game{background:linear-gradient(120deg,#00c2ff,#5a5cff 48%,#b224ef);color:#fff}
+.ad-market{background:linear-gradient(120deg,#ffd400,#ff8a00 48%,#ff3d6e);color:#17120a}
+.adbanner .adbig{font-size:24px;font-weight:950;letter-spacing:-.7px;margin:3px 0}.adbanner .adsub{font-size:13px;opacity:.92;max-width:80%}
+.neon{box-shadow:0 0 0 1px #ffffff12,0 0 35px #6f5cff25}.choice:nth-child(1){background:linear-gradient(145deg,#172a4d,#14213a)}.choice:nth-child(2){background:linear-gradient(145deg,#251d4c,#18203a)}.choice:nth-child(3){background:linear-gradient(145deg,#12394a,#14243a)}.choice:nth-child(4){background:linear-gradient(145deg,#3b2039,#1d2238)}
+@keyframes pop{from{opacity:0;transform:scale(.97) translateY(-6px)}to{opacity:1;transform:none}}
+.spark{display:inline-block;animation:spark 1.2s infinite alternate}@keyframes spark{to{transform:scale(1.15) rotate(4deg);filter:brightness(1.25)}}
+</style></head>
+<body><div class="wrap">
+<div class="nav"><div class="logo">◈ FinCity Lab</div><div class="badge">Математическая модель • 6 класс</div></div>
+
+<section id="intro" class="card hero">
+<div class="kicker">ВИРТУАЛЬНАЯ ЭКОНОМИКА 2.0</div>
+<h1>Ты управляешь не деньгами. Ты управляешь системой.</h1>
+<p class="lead">Это не обычный тест. Ты проживёшь <b>12 виртуальных недель</b>. Цены будут меняться из-за инфляции, появятся скидки, риск, проценты по сбережениям и случайные события. В конце алгоритм математически проанализирует твою стратегию.</p>
+<div class="grid" style="margin:20px 0"><div class="mini"><b>20 000 ₸</b><span>стартовый капитал</span></div><div class="mini"><b>12 недель</b><span>динамическая экономика</span></div><div class="mini"><b>5 формул</b><span>математическая модель</span></div></div>
+<div class="math"><strong>Главная идея исследования:</strong><br>Финансовый результат = доход − расходы + сбережения × процент − потери от инфляции и импульсивных решений</div>
+<button class="primary" onclick="start()">Войти в FinCity →</button>
+</section>
+
+<section id="sim" class="hidden">
+<div class="card">
+<div class="topstats"><div><div class="label">КАПИТАЛ</div><div class="money" id="money">20 000 ₸</div></div><div><div class="label">НЕДЕЛЯ</div><div style="font-size:27px;font-weight:900" id="week">1/12</div></div><div><div class="label">ИНФЛЯЦИЯ</div><div style="font-size:27px;font-weight:900" id="infl">0%</div></div></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+</div>
+<div class="market">
+<div class="card"><div class="label">ЭКОНОМИЧЕСКАЯ СИТУАЦИЯ</div><h2 id="title"></h2><div id="adslot"></div><div id="event" class="event"></div><p id="desc" class="lead"></p><div id="formula" class="math"></div><div id="choices" class="choices"></div></div>
+<div class="card"><div class="label">ТВОИ ПОКАЗАТЕЛИ</div><p>🏦 Сбережения: <b id="saved">0 ₸</b></p><p>🛍 Расходы: <b id="spent">0 ₸</b></p><p>⚡ Импульсивные: <b id="imp">0</b></p><p>📈 Процентный доход: <b id="interest">0 ₸</b></p><hr style="border-color:#263957"><div class="label">ИНДЕКС ЦЕН</div><canvas id="miniChart" width="300" height="150"></canvas></div>
+</div></section>
+
+<section id="result" class="hidden">
+<div class="card"><div class="kicker">МАТЕМАТИЧЕСКИЙ АНАЛИЗ ЗАВЕРШЁН</div><div class="resultTitle">Твоя финансовая устойчивость</div><div class="score" id="score">0</div><div id="type" class="event"></div>
+<div class="grid" style="margin-top:15px"><div class="mini"><b id="finalMoney"></b><span>итоговый капитал</span></div><div class="mini"><b id="saveRate"></b><span>доля сбережений</span></div><div class="mini"><b id="realValue"></b><span>реальная покупательная стоимость</span></div></div></div>
+<div class="card"><h2>📊 Как математика оценила стратегию?</h2><div id="calc" class="math"></div><canvas id="finalChart" width="850" height="250"></canvas></div>
+<div class="card research"><h2>🔬 Научный вывод</h2><p id="conclusion" class="lead"></p><div><span class="chip">проценты</span><span class="chip">среднее арифметическое</span><span class="chip">отношения</span><span class="chip">индекс цен</span><span class="chip">вероятность</span></div></div>
+<button class="primary" onclick="location.reload()">Начать новую экономику</button>
+</section>
+<div class="footer">FinCity Lab • школьная исследовательская модель<br><span style="font-size:10px">Названия сервисов используются только как знакомые примеры цифровой экономики. Проект не связан с указанными компаниями.</span></div>
+</div>
+<script>
+let cash=20000,savings=0,totalSpent=0,impulse=0,interestEarned=0,w=0,priceIndex=100,history=[100],cashHist=[20000];
+const weeks=[
+["Первый бюджет","Цены стабильны.","Распредели часть капитала между текущими расходами и резервом.","Резерв = капитал × выбранная доля",[["Сохранить 20%",4000,"save"],["Сохранить 10%",2000,"save"],["Ничего не откладывать",0,"none"],["Потратить 25% на желания",5000,"imp"]]],
+["Инфляция","Цены выросли на 4%.","Товар, который стоил 2 000 ₸, теперь стоит дороже.","Новая цена = 2 000 × 1,04 = 2 080 ₸",[["Купить сейчас",2080,"need"],["Отказаться",0,"none"],["Купить аналог",1500,"need"],["Купить дорогую версию",3000,"imp"]]],
+["Банк FinCity","Банк предлагает 5% на накопления.","Можно перевести деньги в виртуальный вклад.","Доход = вклад × 5 / 100",[["Вложить 3000 ₸",3000,"deposit"],["Вложить 1500 ₸",1500,"deposit"],["Не вкладывать",0,"none"],["Потратить 2000 ₸",2000,"imp"]]],
+["Скидка −30%","Наушники стоили 5 000 ₸.","Магазин показывает большую скидку. Но нужны ли тебе наушники?","Цена = 5 000 × (100−30)/100 = 3 500 ₸",[["Купить за 3500 ₸",3500,"imp"],["Не покупать",0,"none"],["Сравнить и купить за 2800 ₸",2800,"need"],["Отложить деньги",0,"none"]]],
+["Рост цен","Инфляция ускорилась ещё на 3%.","Стоимость обычной корзины товаров растёт.","Индекс цен: предыдущий индекс × 1,03",[["Купить необходимое",1800,"need"],["Сократить расходы",900,"need"],["Потратить как обычно",2500,"imp"],["Ничего не покупать",0,"none"]]],
+["Случайное событие","Вероятность неожиданного расхода сработала.","Требуется ремонт школьного устройства.","Непредвиденный расход = 2 500 ₸",[["Оплатить из денег",2500,"need"],["Использовать резерв",2500,"reserve"],["Выбрать ремонт за 1800",1800,"need"],["Отложить ремонт",0,"none"]]],
+["Донат в игре","Тебе показывают яркий лимитированный предмет.","Набор игровой валюты стоит 4 000 ₸, но баннер обещает скидку 20%.","Цена со скидкой = 4 000 × 0,8 = 3 200 ₸",[["Купить",3200,"imp"],["Не покупать",0,"none"],["Найти аналог за 2200",2200,"need"],["Сохранить 3200",3200,"save"]]],
+["Доход","Ты получил виртуальный доход 3 000 ₸.","Теперь нужно решить, что делать с дополнительными деньгами.","Новый капитал = текущий капитал + 3 000", [["Сохранить весь доход",0,"bonusSave"],["Потратить 1500",1500,"imp"],["Потратить 500",500,"need"],["Оставить деньги на балансе",0,"none"]]],
+["Подписка на развлечения","Ты выбираешь, оформлять ли подписку на музыку и кино.","Вариант A: 600 ₸ в неделю. Вариант B: 2000 ₸ за 4 недели.","A за 4 недели = 600 × 4 = 2 400 ₸; B = 2 000 ₸",[["Выбрать B",2000,"need"],["Выбрать A",2400,"need"],["Не покупать",0,"none"],["Премиум за 3200",3200,"imp"]]],
+["Кэшбэк","Магазин обещает 10% возврата.","Покупка стоит 2 000 ₸.","Кэшбэк = 2 000 × 10 / 100 = 200 ₸",[["Купить: возврат 200",1800,"need"],["Не покупать",0,"none"],["Купить лишнее ради кэшбэка",3000,"imp"],["Сохранить 2000",2000,"save"]]],
+["Финансовый выбор","До конца модели осталось мало времени.","Сравни краткосрочное удовольствие и будущий резерв.","Коэффициент сбережений = сбережения / стартовый капитал × 100%",[["Отложить 2500",2500,"save"],["Развлечения 2500",2500,"imp"],["Отложить 1000",1000,"save"],["Не менять бюджет",0,"none"]]],
+["Финальная неделя","Экономика подводит итог.","Последнее решение повлияет на индекс устойчивости.","Индекс = 50 + доля сбережений − штраф за импульсивность",[["Сохранить остаток",0,"none"],["Отложить 2000",2000,"save"],["Потратить 2000",2000,"imp"],["Отложить 1000",1000,"save"]]]
+];
+function m(n){return Math.round(n).toLocaleString("ru-RU")+" ₸"}
+function start(){document.getElementById("intro").classList.add("hidden");document.getElementById("sim").classList.remove("hidden");render()}
+const ads={
+1:'<div class="adbanner ad-yandex"><div class="adbig">▶ Яндекс Плюс <span class="spark">✨</span></div><div class="adsub">Музыка, фильмы и сериалы. Оформить подписку сейчас?</div></div>',
+3:'<div class="adbanner ad-market"><div class="adbig">🔥 СКИДКА −30%</div><div class="adsub">Только сегодня. Таймер скидки создаёт ощущение срочности — но действительно ли тебе нужен товар?</div></div>',
+6:'<div class="adbanner ad-game"><div class="adbig">🎮 НОВЫЙ СКИН!</div><div class="adsub">Лимитированный предмет в игре. Пополнить баланс и сделать донат?</div></div>',
+8:'<div class="adbanner ad-yandex"><div class="adbig">🎬 КиноПоиск + Музыка</div><div class="adsub">Развлечения каждый день. Выбери подписку — или сравни стоимость за месяц.</div></div>',
+9:'<div class="adbanner ad-market"><div class="adbig">💥 КЭШБЭК 10%</div><div class="adsub">Вернём часть покупки бонусами. Выгодно ли покупать вещь только ради кэшбэка?</div></div>'
+};
+function render(){
+let q=weeks[w];document.getElementById("adslot").innerHTML=ads[w]||"";document.getElementById("money").textContent=m(cash);document.getElementById("week").textContent=(w+1)+"/12";document.getElementById("infl").textContent=(priceIndex-100).toFixed(1)+"%";document.getElementById("bar").style.width=(w/12*100)+"%";document.getElementById("title").textContent=q[0];document.getElementById("event").textContent=q[1];document.getElementById("desc").textContent=q[2];document.getElementById("formula").innerHTML="∑  "+q[3];let c=document.getElementById("choices");c.innerHTML="";q[4].forEach(x=>{let b=document.createElement("button");b.className="choice";b.innerHTML="<b>"+x[0]+"</b>"+(x[1]?m(x[1]):"Без расхода");b.onclick=()=>choose(x[1],x[2]);c.appendChild(b)});stats();drawMini()}
+function choose(cost,type){
+if(w===1){priceIndex*=1.04} if(w===4){priceIndex*=1.03}
+if(w===7)cash+=3000;
+if(type==="reserve"){let use=Math.min(savings,cost);savings-=use;cost-=use}
+if(cost>cash){alert("Недостаточно средств. Выбери другой вариант.");return}
+if(type==="save"){cash-=cost;savings+=cost}else if(type==="deposit"){cash-=cost;savings+=cost}else if(type==="bonusSave"){savings+=3000;cash-=3000}else{cash-=cost;totalSpent+=cost}
+if(type==="imp")impulse++;
+if(w===2 && savings>0){let gain=savings*.05; savings+=gain;interestEarned+=gain}
+if(w===9 && type==="need"){cash+=200}
+history.push(priceIndex);cashHist.push(cash+savings);w++;if(w>=12)finish();else render()}
+function stats(){document.getElementById("saved").textContent=m(savings);document.getElementById("spent").textContent=m(totalSpent);document.getElementById("imp").textContent=impulse;document.getElementById("interest").textContent=m(interestEarned)}
+function drawMini(){let c=document.getElementById("miniChart"),x=c.getContext("2d");x.clearRect(0,0,c.width,c.height);x.strokeStyle="#41d9b5";x.lineWidth=3;x.beginPath();history.forEach((v,i)=>{let px=20+i*(260/12),py=125-(v-98)*7;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();x.fillStyle="#9eacc4";x.font="11px system-ui";x.fillText("100",4,126);x.fillText("Индекс цен",10,18)}
+function finish(){
+document.getElementById("sim").classList.add("hidden");document.getElementById("result").classList.remove("hidden");
+let wealth=cash+savings,saveRate=Math.round(savings/20000*100),real=Math.round(wealth/(priceIndex/100));let score=Math.round(Math.max(0,Math.min(100,50+saveRate+interestEarned/200-impulse*8-(priceIndex-100))));
+let type=score>=80?"Стратег":score>=60?"Рациональный планировщик":score>=40?"Осторожный потребитель":"Импульсивный потребитель";
+document.getElementById("score").textContent=score+"/100";document.getElementById("type").textContent="Финансовый профиль: "+type;document.getElementById("finalMoney").textContent=m(wealth);document.getElementById("saveRate").textContent=saveRate+"%";document.getElementById("realValue").textContent=m(real);
+document.getElementById("calc").innerHTML="1) Капитал = наличные + сбережения = "+m(cash)+" + "+m(savings)+" = <strong>"+m(wealth)+"</strong><br><br>2) Доля сбережений = "+m(savings)+" / 20 000 × 100% = <strong>"+saveRate+"%</strong><br><br>3) Индекс цен = <strong>"+priceIndex.toFixed(1)+"</strong><br><br>4) Реальная стоимость капитала = "+m(wealth)+" / "+(priceIndex/100).toFixed(3)+" = <strong>"+m(real)+"</strong><br><br>5) Импульсивных решений: <strong>"+impulse+"</strong>";
+document.getElementById("conclusion").textContent="Модель показывает, что одинаковый стартовый капитал может привести к разным результатам. На итог влияют не только расходы, но и проценты, инфляция, скидки, резерв и импульсивные решения. Если провести эксперимент с группой школьников, можно сравнить средний индекс финансовой устойчивости и найти связь между количеством импульсивных покупок и итоговым капиталом.";
+drawFinal()}
+function drawFinal(){let c=document.getElementById("finalChart"),x=c.getContext("2d");x.clearRect(0,0,c.width,c.height);let max=Math.max(...cashHist,22000);x.strokeStyle="#7c8cff";x.lineWidth=4;x.beginPath();cashHist.forEach((v,i)=>{let px=40+i*(760/(cashHist.length-1)),py=210-v/max*170;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();x.fillStyle="#9eacc4";x.font="13px system-ui";x.fillText("Изменение общего капитала по неделям",40,24)}
+</script></body></html>
